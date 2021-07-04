@@ -15,15 +15,15 @@
             integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
         
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
-    integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
-    crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
-    integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
-    crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+            integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+            crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+            integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+            crossorigin="anonymous"></script>
 
 
 
@@ -75,8 +75,41 @@
             </div>
         </div>
 
+        <button class="intent_button" id="API_button" data-toggle="modal" data-target="#IntentTriggerModal_getAPI">Edit 🔑</button>
+
+        <div class="modal fade" id="IntentTriggerModal_getAPI" tabindex="-1" role="dialog" aria-labelledby="IntentBaseModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+        
+                    <div class="modal-body">
+                        <div class="modal_header">
+                            <button class="close" id="close_key_modal" data-dismiss="modal" aria-label="Close"><i class="fas fa-times"></i></button>
+                        </div>
+        
+                        <div id="modal_content"><div class='content_block'>
+                            <p class='summary_text' style="min-height: 10px; margin: unset;">🔐 Enter OpenAI Key</p>
+                            <br/><input id='api_key_input' class='input_box'
+                                placeholder='Paste key here'/>
+                                <br/><br/><br/>
+                        <button class='intent_button'
+                                id='get_api_key_button' onclick='set_openai_key()'>Set Key</button>
+                            
+                        </div></div>
+                    </div>
+        
+                </div>
+            </div>
+        </div>
+
 
         <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+        <script src='assets/recommendMovie.js'></script>
+        <script src='assets/recommendFood.js'></script>
+        <script src='assets/writeEssay.js'></script>
+        <script src='assets/writeSummary.js'></script>
+        <script src='assets/playSong.js'></script>
+        <script src='assets/openMap.js'></script>
         <script src='./script.js'></script>
 
     </body>

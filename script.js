@@ -1,4 +1,4 @@
-var Openai_key = "Bearer OPENAI_API_KEY";
+var Openai_key = "Bearer ";
 
 function addTask() {
   var todo = document.getElementById("addTask").value;
@@ -22,22 +22,52 @@ function countTasks() {
 
 function pageLoad() {
   var data = localStorage.getItem("todo-blob-1");
-  document.getElementById("task_list").innerHTML = data;
+  if (data) {
+    document.getElementById("task_list").innerHTML = data;
+  }
 
   countTasks();
+
+  getapikey();
 }
 
 pageLoad();
 
+function getapikey() {
+  var key = localStorage.getItem("openai_key");
+  if (!key) {
+    var button = document.getElementById("API_button");
+    button.click();
+  } else {
+    Openai_key += key.trim();
+  }
+}
+
+function set_openai_key() {
+  var key_data = document.getElementById("api_key_input").value;
+  console.log(key_data);
+
+  Openai_key += key_data;
+
+  localStorage.setItem("openai_key", key_data.trim());
+
+  document.getElementById("close_key_modal").click();
+
+  setTimeout(function () {
+    location.reload();
+  }, 100);
+}
+
 function modalContent(intent) {
   var intents_all = intent.split("/");
-  var flag = false;
 
   var intent_apps = [
     "watch-movie",
     "food-recipe",
     "write-essay",
     "make-summary",
+    "play-song",
+    "go-to",
   ];
 
   switch (intents_all[0]) {
@@ -52,6 +82,12 @@ function modalContent(intent) {
       break;
     case intent_apps[3]:
       renderMakeSummary();
+      break;
+    case intent_apps[4]:
+      renderPlaySong(intent);
+      break;
+    case intent_apps[5]:
+      renderOpenMap(intent);
       break;
     default:
       var intent_pill = "";
@@ -124,9 +160,19 @@ async function getintent(prompt) {
       console.log(xhr.status);
       console.log(xhr.responseText);
 
-      return_value = JSON.parse(xhr.responseText).choices[0].text;
-      //console.log(return_value);
-      renderonpage(prompt, return_value);
+      if (xhr.status == 401) {
+        var button = document.getElementById("add_task_button");
+        button.innerHTML = "Add task 🤠";
+
+        document.getElementById("task_list").innerHTML =
+          "<p class='summary_text' style='margin-left:0px'>" +
+          JSON.parse(xhr.responseText).error.message +
+          "</p><br/><br/><button class='intent_button' data-toggle='modal' data-target='#IntentTriggerModal_getAPI'>🔑 Set key</button>";
+      } else {
+        return_value = JSON.parse(xhr.responseText).choices[0].text;
+        //console.log(return_value);
+        renderonpage(prompt, return_value);
+      }
     }
   };
 
@@ -228,247 +274,4 @@ function clean_intent_text(intent) {
   }
 
   return intent_obj;
-}
-
-function renderMakeSummary() {
-  var html =
-    "<div class='content_block'>\
-        <textarea id='text_summarizer' class='input_box_big' rows='4' cols='50' placeholder='Enter text to summarize'></textarea>\
-    <button class='intent_button' onclick='renderMakeSummary()'>Reset</button><button class='intent_button' id='summarize_button' onclick='getSummary()'>Summarize</button>\
-     <br/><br/>\
-    </div>";
-
-  document.getElementById("modal_content").innerHTML = html;
-}
-
-function getSummary() {
-  var input = document.getElementById("text_summarizer").value + "\n\ntl;dr:";
-  document.getElementById("summarize_button").innerHTML =
-    "🤯 summarizing . . .";
-
-  var url = "https://api.openai.com/v1/engines/davinci/completions";
-
-  var return_value = "";
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.setRequestHeader("Authorization", Openai_key);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      console.log(xhr.status);
-      console.log(xhr.responseText);
-
-      return_value = JSON.parse(xhr.responseText).choices[0].text;
-
-      var html =
-        "<div class='content_block'>\
-        <p class='summary_text'>" +
-        return_value +
-        "</p>\
-    <button class='intent_button' onclick='renderMakeSummary()'>Reset</button>\
-     <br/><br/>\
-     </div>";
-
-      document.getElementById("modal_content").innerHTML = html;
-    }
-  };
-
-  var data = {
-    prompt: input,
-    temperature: 0.3,
-    max_tokens: 100,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
-
-  xhr.send(JSON.stringify(data));
-}
-
-function renderMovieRecommend() {
-  var html =
-    "<div class='content_block'>\
-        <textarea id='movie_recommender' class='input_box_big' rows='4' cols='50' placeholder='Find movies similar to?'></textarea>\
-    <button class='intent_button' onclick='renderMovieRecommend()'>Reset</button><button class='intent_button' id='movie_recommend_button' onclick='getMovieRecommendation()'>Find movies</button>\
-     <br/><br/>\
-    </div>";
-
-  document.getElementById("modal_content").innerHTML = html;
-}
-
-function getMovieRecommendation() {
-  var input =
-    "1. Gravity\n\n2. The Fault in Our Stars\n\n3. The Hunger Games: Mockingjay – Part 1\n\n4.  " +
-    document.getElementById("movie_recommender").value +
-    "\n\n";
-
-  document.getElementById("movie_recommend_button").innerHTML =
-    "🍿 munching . . .";
-
-  var url =
-    "https://api.openai.com/v1/engines/davinci-instruct-beta/completions";
-
-  var return_value = "";
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.setRequestHeader("Authorization", Openai_key);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      console.log(xhr.status);
-      console.log(xhr.responseText);
-
-      return_value = JSON.parse(xhr.responseText).choices[0].text;
-
-      var html =
-        "<div class='content_block'>\
-        <p class='summary_text'>" +
-        return_value +
-        "</p>\
-    <button class='intent_button' onclick='renderMovieRecommend()'>Reset</button>\
-     <br/><br/>\
-     </div>";
-
-      document.getElementById("modal_content").innerHTML = html;
-    }
-  };
-
-  var data = {
-    prompt: input,
-    temperature: 0.0,
-    max_tokens: 100,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
-  console.log(data);
-
-  xhr.send(JSON.stringify(data));
-}
-
-function renderFoodRecipe() {
-  var html =
-    "<div class='content_block'>\
-        <textarea id='food_recommender' class='input_box_big' rows='4' cols='50' placeholder='What do you want to eat?'></textarea>\
-    <button class='intent_button' onclick='renderFoodRecipe()'>Reset</button><button class='intent_button' id='food_recommend_button' onclick='findRecipe()'>Find Food ideas</button>\
-     <br/><br/>\
-    </div>";
-
-  document.getElementById("modal_content").innerHTML = html;
-}
-
-function findRecipe() {
-  var input = document.getElementById("food_recommender").value;
-
-  document.getElementById("food_recommend_button").innerHTML =
-    "🍜 searching for recipes . . .";
-
-  var url =
-    "https://api.openai.com/v1/engines/davinci-instruct-beta/completions";
-
-  var return_value = "";
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.setRequestHeader("Authorization", Openai_key);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      console.log(xhr.status);
-      console.log(xhr.responseText);
-
-      return_value = JSON.parse(xhr.responseText).choices[0].text;
-
-      var html =
-        "<div class='content_block'>\
-        <p class='summary_text'>" +
-        return_value +
-        "</p>\
-    <button class='intent_button' onclick='renderFoodRecipe()'>Reset</button>\
-     <br/><br/>\
-     </div>";
-
-      document.getElementById("modal_content").innerHTML = html;
-    }
-  };
-  var data = {
-    prompt: input,
-    temperature: 0.0,
-    max_tokens: 120,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
-  console.log(data);
-
-  xhr.send(JSON.stringify(data));
-}
-
-function renderWriteEssay() {
-  var html =
-    "<div class='content_block'>\
-        <textarea id='essay_recommender' class='input_box_big' rows='4' cols='50' placeholder='Write your masterpiece?'></textarea>\
-    <button class='intent_button' onclick='renderWriteEssay()'>Reset</button><button class='intent_button' id='essay_recommend_button' onclick='findEssay()'>Find Essay Outline</button>\
-     <br/><br/>\
-    </div>";
-
-  document.getElementById("modal_content").innerHTML = html;
-}
-
-function findEssay() {
-  var input =
-    document.getElementById("essay_recommender").value + "\n\nI: Introduction";
-
-  document.getElementById("essay_recommend_button").innerHTML =
-    "📔 thinking . . .";
-
-  var url =
-    "https://api.openai.com/v1/engines/davinci-instruct-beta/completions";
-
-  var return_value = "";
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.setRequestHeader("Authorization", Openai_key);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      console.log(xhr.status);
-      console.log(xhr.responseText);
-
-      return_value = JSON.parse(xhr.responseText).choices[0].text;
-
-      var html =
-        "<div class='content_block'>\
-        <p class='summary_text'>" +
-        return_value +
-        "</p>\
-    <button class='intent_button' onclick='renderWriteEssay()'>Reset</button>\
-     <br/><br/>\
-     </div>";
-
-      document.getElementById("modal_content").innerHTML = html;
-    }
-  };
-  var data = {
-    prompt: input,
-    temperature: 0.0,
-    max_tokens: 180,
-    top_p: 1.0,
-    frequency_penalty: 0.0,
-    presence_penalty: 0.0,
-  };
-  console.log(data);
-
-  xhr.send(JSON.stringify(data));
 }
